@@ -1,6 +1,7 @@
 require 'csv'
 require 'sunlight/congress'
 require 'erb'
+require 'date'
 
 Sunlight::Congress.api_key = "e179a6973728c4dd3fb1204283aaccb5"
 
@@ -23,9 +24,16 @@ def clean_phone_numbers(number)
   end
 end
 
-def format_date(registation_date)
-  DateTime.strptime(registation_date,'%Y')
-  #DateTime.hour(registation_date)
+def split_date(registation_date)
+  registation_date.split(" ")[0]
+end
+
+def split_time(registation_date)
+  registation_date.split(" ")[1]
+end
+
+def format_date(split_date)
+  DateTime.strptime(split_date)
 end
 
 
@@ -52,7 +60,8 @@ contents.each do |row|
   name = row[:first_name]
   zipcode = clean_zipcode(row[:zipcode])
   phone_number = clean_phone_numbers(row[:homephone])
-  registation_date = format_date(row[:regdate]).to_s
+  registation_date = split_date(row[:regdate])
+  registation_time = split_time(row[:regdate])
 
   legislators = legislators_by_zipcode(zipcode)
 
@@ -62,5 +71,6 @@ contents.each do |row|
   save_thank_you_letters(id, form_letter)
 
   puts clean_phone_numbers(phone_number)
-  puts format_date(registation_date)
+  puts split_date(registation_date)
+  puts split_time(registation_time)
 end
